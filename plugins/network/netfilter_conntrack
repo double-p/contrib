@@ -1,0 +1,60 @@
+#!/bin/sh
+# -*- sh -*-
+
+: << =cut
+
+=head1 NAME
+
+
+=head1 CONFIGURATION
+
+No configuration
+ 
+=head2 ENVIRONMENT VARIABLES
+
+This plugin does not use environment variables
+
+=head1 BUGS
+
+IPv6 not implemented
+Could make use of warning/critical
+
+=head1 NOTES
+
+Read http://timanovsky.wordpress.com/2009/04/10/tuning-linux-firewall-connection-tracker-ip_conntrack/
+for a short explanation of these values
+
+=head1 MAGIC MARKERS
+
+=head1 AUTHOR
+
+Philipp Buehler
+
+=head1 LICENSE
+
+BSD 2-clause
+
+=cut
+
+case $1 in
+    config)
+        cat <<'EOM'
+graph_title netfilter conntrack
+graph_info shows some counters from netfilter's conntrack module
+graph_category network
+graph_vlabel count
+EOM
+    echo "ip_conntrack_count.info Current entries in conntrack"
+    echo "ip_conntrack_count.label current"
+    echo "ip_conntrack_max.info Maximum entries in conntrack"
+    echo "ip_conntrack_max.label maximum"
+    echo "ip_conntrack_buckets.info Buckets (hash maps) in conntrack"
+    echo "ip_conntrack_buckets.label buckets"
+        exit 0;;
+esac
+
+/sbin/sysctl net.ipv4.netfilter | awk -F"[ = ]" \
+        '/ip_conntrack_buckets/ { print "ip_conntrack_buckets.value", $NF }
+         /ip_conntrack_count/ { print "ip_conntrack_count.value", $NF }
+         /ip_conntrack_max/ { print "ip_conntrack_max.value", $NF }
+        '
